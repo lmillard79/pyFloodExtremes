@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pymc as pm
 import arviz as az
+import pytensor.tensor as pt
 
 def lp3_logp(value, mu, sigma, skew):
     """
@@ -23,7 +24,7 @@ def lp3_logp(value, mu, sigma, skew):
     # an arbitrary positive value where u <= 0, and switch to -inf at the end.
     safe_u = pm.math.switch(u > 0, u, 1e-10)
     
-    log_f_u = (alpha - 1) * pm.math.log(safe_u) - safe_u - pm.math.gammaln(alpha)
+    log_f_u = (alpha - 1) * pm.math.log(safe_u) - safe_u - pt.special.gammaln(alpha)
     
     # Jacobian for the transformation from u to value
     jacobian = pm.math.log(pm.math.abs(beta) / sigma)
@@ -62,6 +63,6 @@ def fit_lp3(flows: pd.Series, draws: int = 2000, tune: int = 1000) -> az.Inferen
             observed=log_flows,
         )
         
-        idata = pm.sample(draws=draws, tune=tune, return_inferencedata=True)
+        idata = pm.sample(draws=draws, tune=tune, target_accept=0.95, return_inferencedata=True)
         
     return idata

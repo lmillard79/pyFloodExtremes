@@ -51,7 +51,12 @@ def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.n
     ])
     
     median = np.median(rl_samples, axis=0)
-    hdi = az.hdi(rl_samples, hdi_prob=0.94)
+    
+    # Reshape to (chain, draw, shape) to avoid ArviZ future warnings
+    n_chains = idata.posterior.dims['chain']
+    n_draws = idata.posterior.dims['draw']
+    rl_reshaped = rl_samples.reshape((n_chains, n_draws, len(aep_grid)))
+    hdi = az.hdi(rl_reshaped, hdi_prob=0.94)
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
@@ -65,12 +70,13 @@ def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.n
     
     # Formatting
     ax.set_xscale('prob')
+    ax.set_yscale('log')
     ax.set_xlim([63, 0.1])
     ax.set_xticks(AEP_TICKS)
     ax.set_xticklabels([f'{p}%' for p in AEP_TICKS])
     
     ax.set_xlabel('Annual Exceedance Probability (%)')
-    ax.set_ylabel('Flow ($m^3/s$)')
+    ax.set_ylabel('Flow ($m^3/s$) [Log Scale]')
     ax.set_title('LP3 Flood Frequency Curve')
     ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='0.7')
     ax.legend()

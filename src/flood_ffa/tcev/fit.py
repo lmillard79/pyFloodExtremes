@@ -81,6 +81,6 @@ def fit_tcev(flows: pd.Series, draws: int = 2000, tune: int = 1000) -> az.Infere
         )
         
         # Higher target_accept recommended for mixture models
-        idata = pm.sample(draws=draws, tune=tune, target_accept=0.9, return_inferencedata=True)
+        idata = pm.sample(draws=draws, tune=tune, target_accept=0.95, return_inferencedata=True)
         
     return idata

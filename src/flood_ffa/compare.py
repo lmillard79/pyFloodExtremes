@@ -41,7 +41,10 @@ def plot_comparison(
     
     rl_gev = np.array([gev_return_level(mu_gev[i], sigma_gev[i], xi_gev[i], aep_grid) for i in range(len(mu_gev))])
     gev_median = np.median(rl_gev, axis=0)
-    gev_hdi = az.hdi(rl_gev, hdi_prob=0.94)
+    
+    # Reshape for HDI
+    rl_gev_reshaped = rl_gev.reshape((post_gev.dims['chain'], post_gev.dims['draw'], len(aep_grid)))
+    gev_hdi = az.hdi(rl_gev_reshaped, hdi_prob=0.94)
     
     ax.plot(aep_grid, gev_median, color=DIST_COLORS['gev'], label="GEV Median")
     ax.fill_between(aep_grid, gev_hdi[:, 0], gev_hdi[:, 1], color=DIST_COLORS['gev'], alpha=0.1)
@@ -54,7 +57,10 @@ def plot_comparison(
     
     rl_lp3 = np.array([lp3_return_level(mu_lp3[i], sigma_lp3[i], skew_lp3[i], aep_grid) for i in range(len(mu_lp3))])
     lp3_median = np.median(rl_lp3, axis=0)
-    lp3_hdi = az.hdi(rl_lp3, hdi_prob=0.94)
+    
+    # Reshape for HDI
+    rl_lp3_reshaped = rl_lp3.reshape((post_lp3.dims['chain'], post_lp3.dims['draw'], len(aep_grid)))
+    lp3_hdi = az.hdi(rl_lp3_reshaped, hdi_prob=0.94)
     
     ax.plot(aep_grid, lp3_median, color=DIST_COLORS['lp3'], label="LP3 Median")
     ax.fill_between(aep_grid, lp3_hdi[:, 0], lp3_hdi[:, 1], color=DIST_COLORS['lp3'], alpha=0.1)
@@ -76,7 +82,10 @@ def plot_comparison(
         for i in range(len(w_tcev))
     ])
     tcev_median = np.median(rl_tcev, axis=0)
-    tcev_hdi = az.hdi(rl_tcev, hdi_prob=0.94)
+    
+    # Reshape for HDI
+    rl_tcev_reshaped = rl_tcev.reshape((post_tcev.dims['chain'], post_tcev.dims['draw'], len(aep_grid)))
+    tcev_hdi = az.hdi(rl_tcev_reshaped, hdi_prob=0.94)
     
     ax.plot(aep_grid, tcev_median, color=DIST_COLORS['tcev'], label="TCEV Median")
     ax.fill_between(aep_grid, tcev_hdi[:, 0], tcev_hdi[:, 1], color=DIST_COLORS['tcev'], alpha=0.1)
@@ -87,19 +96,20 @@ def plot_comparison(
     
     # Formatting
     ax.set_xscale('prob')
+    ax.set_yscale('log')
     ax.set_xlim([63, 0.1])
     ax.set_xticks(AEP_TICKS)
     ax.set_xticklabels([f'{p}%' for p in AEP_TICKS])
     
     ax.set_xlabel('Annual Exceedance Probability (%)')
-    ax.set_ylabel('Flow ($m^3/s$)')
+    ax.set_ylabel('Flow ($m^3/s$) [Log Scale]')
     ax.set_title('Flood Frequency Comparison: GEV vs LP3 vs TCEV')
     ax.legend(loc="upper left")
     ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='0.7')
     
     # Cap y-limit
     all_medians = np.concatenate([gev_median, lp3_median, tcev_median])
-    ax.set_ylim(bottom=0, top=np.max(all_medians) * 1.3)
+    ax.set_ylim(bottom=max(1.0, flows.min() * 0.5), top=np.max(all_medians) * 2.0)
     
     fig.tight_layout()
     return fig
