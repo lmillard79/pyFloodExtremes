@@ -3,6 +3,8 @@ import pandas as pd
 import arviz as az
 import matplotlib.pyplot as plt
 import matplotlib.figure
+import probscale
+from scipy.stats import genextreme
 
 def plot_trace(idata: az.InferenceData) -> matplotlib.figure.Figure:
     """Plots ArviZ trace plots for the GEV parameters."""
@@ -20,60 +22,68 @@ def plot_corner(idata: az.InferenceData) -> matplotlib.figure.Figure:
         fig = ax.figure
     return fig
 
-def plot_return_levels(idata: az.InferenceData, flows: pd.Series, return_periods: list[float] = None) -> matplotlib.figure.Figure:
+def cunnane_plotting_positions(flows: np.ndarray) -> np.ndarray:
     """
-    Plots the return level curve with 94% HDI uncertainty band.
-    Plots observed data using Weibull plotting positions.
+    Compute Cunnane plotting positions for observed annual maxima.
+    Returns AEP values in percent (0-100), sorted ascending by flow.
     """
-    if return_periods is None:
-        # Default: ~1.25 to 1000 year return periods
-        return_periods = np.logspace(0.1, 3, 100)
-        
-    T = np.array(return_periods)
-    p = 1 - 1 / T
+    n = len(flows)
+    # Ranks 1..n (1 is smallest)
+    ranks = np.argsort(np.argsort(flows)) + 1
+    aep = (ranks - 0.4) / (n + 0.2) * 100
+    return aep
+
+def gev_return_level(mu, sigma, xi, aep_pct):
+    """
+    Compute GEV return level for a given AEP using scipy convention.
+    """
+    p = aep_pct / 100.0
+    # scipy genextreme uses shape convention: sign of xi is negated vs standard
+    return genextreme.ppf(1 - p, c=-xi, loc=mu, scale=sigma)
+
+def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.ndarray = None) -> matplotlib.figure.Figure:
+    """
+    Plots the GEV frequency curve on a probability scale using Australian conventions.
+    """
+    AEP_TICKS = [50, 20, 10, 5, 2, 1, 0.5, 0.2]
+    if aep_grid is None:
+        aep_grid = np.logspace(np.log10(0.2), np.log10(63), 300)
     
     post = idata.posterior
-    # Stack chains and draws
     mu = post["mu"].to_numpy().flatten()
     sigma = post["sigma"].to_numpy().flatten()
     xi = post["xi"].to_numpy().flatten()
     
-    # Calculate quantiles for all posterior samples
-    # GEV formula: x = mu + (sigma/xi) * ( (-log(p))^(-xi) - 1 )
-    eps = 1e-6
-    y_p_all = np.zeros((len(mu), len(T)))
+    # Calculate return levels for all posterior samples
+    rl_samples = np.array([
+        gev_return_level(mu[i], sigma[i], xi[i], aep_grid)
+        for i in range(len(mu))
+    ])
     
-    for i in range(len(mu)):
-        if abs(xi[i]) < eps:
-            y_p_all[i, :] = mu[i] - sigma[i] * np.log(-np.log(p))
-        else:
-            # -log(p) can be problematic if p is close to 1
-            neg_log_p = -np.log(p)
-            y_p_all[i, :] = mu[i] + (sigma[i] / xi[i]) * (np.power(neg_log_p, -xi[i]) - 1)
-            
-    # Calculate median
-    y_median = np.median(y_p_all, axis=0)
-    
-    # Calculate 94% HDI using ArviZ
-    y_hdi = az.hdi(y_p_all, hdi_prob=0.94)
-    
-    # Calculate Weibull plotting positions for observed data
-    n = len(flows)
-    sorted_flows = np.sort(flows)[::-1]
-    ranks = np.arange(1, n + 1)
-    obs_T = (n + 1) / ranks
+    median = np.median(rl_samples, axis=0)
+    hdi = az.hdi(rl_samples, hdi_prob=0.94)
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
-    ax.plot(T, y_median, color="C0", label="Posterior Median (GEV)")
-    ax.fill_between(T, y_hdi[:, 0], y_hdi[:, 1], color="C0", alpha=0.3, label="94% HDI")
-    ax.scatter(obs_T, sorted_flows, color="black", label="Observed (Weibull PP)", zorder=5)
+    # GEV Plotting
+    ax.plot(aep_grid, median, color='#1e4164', lw=1.5, label='GEV posterior median')
+    ax.fill_between(aep_grid, hdi[:, 0], hdi[:, 1], alpha=0.25, color='#1e4164', label='GEV 94% HDI')
     
-    ax.set_xscale("log")
-    ax.set_xlabel("Return Period (years)")
-    ax.set_ylabel("Flow ($m^3/s$)")
-    ax.set_title("GEV Return Levels")
+    # Observed data
+    aep_obs = cunnane_plotting_positions(flows.values)
+    ax.scatter(aep_obs, flows.values, color='#485253', zorder=5, s=30, label='Observed AMS')
+    
+    # Formatting
+    ax.set_xscale('prob')
+    ax.set_xlim([63, 0.1]) # High AEP on left, low on right
+    ax.set_xticks(AEP_TICKS)
+    ax.set_xticklabels([f'{p}%' for p in AEP_TICKS])
+    
+    ax.set_xlabel('Annual Exceedance Probability (%)')
+    ax.set_ylabel('Flow ($m^3/s$)')
+    ax.set_title('GEV Flood Frequency Curve')
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='0.7')
     ax.legend()
-    ax.grid(True, which="both", linestyle="--", alpha=0.7)
+    fig.tight_layout()
     
     return fig

@@ -2029,6 +2029,19 @@ wheels = [
 ]
 
 [[package]]
+name = "probscale"
+version = "0.2.5"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "matplotlib" },
+    { name = "numpy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/36/5d/4e38ee8211b5c89e2dcf42d55d23caff4fcef01649da310a76062662fbd5/probscale-0.2.5.tar.gz", hash = "sha256:10b9ba944d35b5abcb974de99ae3c706c41943a8e4915cf7910efc489c3b860f", size = 424899, upload-time = "2021-10-18T00:31:46.94Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/6b/ff/8b80d872f048299b7f95248e3da809313064267f85f6f333990dcede4561/probscale-0.2.5-py3-none-any.whl", hash = "sha256:6133d7c244586e4f6dccb7913b94a5a9fa4e63ca3424db8b4b98bd21a36b14c4", size = 434221, upload-time = "2021-10-18T00:31:44.309Z" },
+]
+
+[[package]]
 name = "prometheus-client"
 version = "0.24.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2130,6 +2143,7 @@ dependencies = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "probscale" },
     { name = "pyextremes" },
     { name = "pymc" },
     { name = "scipy" },
@@ -2148,6 +2162,7 @@ requires-dist = [
     { name = "matplotlib" },
     { name = "numpy" },
     { name = "pandas" },
+    { name = "probscale" },
     { name = "pyextremes" },
     { name = "pymc" },
     { name = "scipy" },

@@ -3,6 +3,8 @@ import pandas as pd
 import arviz as az
 import matplotlib.pyplot as plt
 import matplotlib.figure
+import probscale
+from flood_ffa.gev.plots import cunnane_plotting_positions, gev_return_level, gev_logpdf_np
 
 def plot_trace(idata: az.InferenceData) -> matplotlib.figure.Figure:
     """Plots ArviZ trace plots for all 7 TCEV parameters."""
@@ -35,17 +37,28 @@ def gev_cdf_np(x, mu, sigma, xi):
             cdf[~valid & (z > 0)] = 1.0
     return cdf
 
-def plot_return_levels(idata: az.InferenceData, flows: pd.Series, return_periods: list[float] = None) -> matplotlib.figure.Figure:
+def tcev_return_level(w, mu1, sigma1, xi1, mu2, sigma2, xi2, aep_pct, x_grid):
     """
-    Plots the mixture return level curve with 94% HDI uncertainty band.
-    Solves the implicit return level equation numerically via CDF interpolation.
+    Compute TCEV return level for a given AEP via numerical inversion.
     """
-    if return_periods is None:
-        return_periods = np.logspace(0.1, 3, 100)
-        
-    T = np.array(return_periods)
-    p_target = 1 - 1 / T
+    p_target = 1 - aep_pct / 100.0
     
+    cdf1 = gev_cdf_np(x_grid, mu1, sigma1, xi1)
+    cdf2 = gev_cdf_np(x_grid, mu2, sigma2, xi2)
+    
+    mix_cdf = (1 - w) * cdf1 + w * cdf2
+    
+    # Interpolate to find x(T). mix_cdf is monotonically increasing.
+    return np.interp(p_target, mix_cdf, x_grid)
+
+def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.ndarray = None) -> matplotlib.figure.Figure:
+    """
+    Plots the TCEV mixture frequency curve on a probability scale using Australian conventions.
+    """
+    AEP_TICKS = [50, 20, 10, 5, 2, 1, 0.5, 0.2]
+    if aep_grid is None:
+        aep_grid = np.logspace(np.log10(0.2), np.log10(63), 300)
+        
     post = idata.posterior
     w = post["w"].to_numpy().flatten()
     mu1 = post["mu1"].to_numpy().flatten()
@@ -56,62 +69,44 @@ def plot_return_levels(idata: az.InferenceData, flows: pd.Series, return_periods
     xi2 = post["xi2"].to_numpy().flatten()
     
     n_samples = len(w)
-    
-    # Dense grid of x values to evaluate the CDF
     x_grid = np.linspace(flows.min() * 0.1, flows.max() * 5, 3000)
-    y_p_all = np.zeros((n_samples, len(T)))
     
-    for i in range(n_samples):
-        cdf1 = gev_cdf_np(x_grid, mu1[i], sigma1[i], xi1[i])
-        cdf2 = gev_cdf_np(x_grid, mu2[i], sigma2[i], xi2[i])
+    rl_samples = np.array([
+        tcev_return_level(w[i], mu1[i], sigma1[i], xi1[i], mu2[i], sigma2[i], xi2[i], aep_grid, x_grid)
+        for i in range(n_samples)
+    ])
         
-        mix_cdf = (1 - w[i]) * cdf1 + w[i] * cdf2
-        
-        # Interpolate to find x(T). mix_cdf is monotonically increasing.
-        y_p_all[i, :] = np.interp(p_target, mix_cdf, x_grid)
-        
-    y_median = np.median(y_p_all, axis=0)
-    y_hdi = az.hdi(y_p_all, hdi_prob=0.94)
-    
-    n = len(flows)
-    sorted_flows = np.sort(flows)[::-1]
-    ranks = np.arange(1, n + 1)
-    obs_T = (n + 1) / ranks
+    median = np.median(rl_samples, axis=0)
+    hdi = az.hdi(rl_samples, hdi_prob=0.94)
     
     fig, ax = plt.subplots(figsize=(10, 6))
     
-    ax.plot(T, y_median, color="C2", label="Posterior Median (TCEV)")
-    ax.fill_between(T, y_hdi[:, 0], y_hdi[:, 1], color="C2", alpha=0.3, label="94% HDI")
-    ax.scatter(obs_T, sorted_flows, color="black", label="Observed (Weibull PP)", zorder=5)
+    # TCEV Plotting
+    ax.plot(aep_grid, median, color='#8dc63f', lw=1.5, label='TCEV posterior median')
+    ax.fill_between(aep_grid, hdi[:, 0], hdi[:, 1], alpha=0.25, color='#8dc63f', label='TCEV 94% HDI')
     
-    ax.set_xscale("log")
-    ax.set_xlabel("Return Period (years)")
-    ax.set_ylabel("Flow ($m^3/s$)")
-    ax.set_title("TCEV Return Levels")
+    # Observed data
+    aep_obs = cunnane_plotting_positions(flows.values)
+    ax.scatter(aep_obs, flows.values, color='#485253', zorder=5, s=30, label='Observed AMS')
+    
+    # Formatting
+    ax.set_xscale('prob')
+    ax.set_xlim([63, 0.1])
+    ax.set_xticks(AEP_TICKS)
+    ax.set_xticklabels([f'{p}%' for p in AEP_TICKS])
+    
+    ax.set_xlabel('Annual Exceedance Probability (%)')
+    ax.set_ylabel('Flow ($m^3/s$)')
+    ax.set_title('TCEV Flood Frequency Curve')
+    ax.grid(True, which='both', linestyle='--', linewidth=0.5, color='0.7')
     ax.legend()
-    ax.grid(True, which="both", linestyle="--", alpha=0.7)
+    fig.tight_layout()
     
     return fig
-
-def gev_logpdf_np(x, mu, sigma, xi):
-    """Numpy implementation of GEV logPDF."""
-    z = (x - mu) / sigma
-    eps = 1e-6
-    logp = np.full_like(z, -np.inf, dtype=float)
-    if abs(xi) < eps:
-        logp = -np.log(sigma) - z - np.exp(-z)
-    else:
-        cond = 1 + xi * z
-        valid = cond > 0
-        if np.any(valid):
-            t = cond[valid] ** (-1/xi)
-            logp[valid] = -np.log(sigma) - (1 + 1/xi) * np.log(cond[valid]) - t
-    return logp
 
 def plot_component_separation(idata: az.InferenceData, flows: pd.Series) -> matplotlib.figure.Figure:
     """
     Plots the posterior probability that each observation belongs to component 2.
-    Highlights extraordinary floods (like the 2021 outlier).
     """
     post = idata.posterior
     w = post["w"].to_numpy().flatten()
@@ -147,13 +142,13 @@ def plot_component_separation(idata: az.InferenceData, flows: pd.Series) -> matp
     fig, ax = plt.subplots(figsize=(10, 6))
     
     years = flows.index
-    ax.plot(years, median_prob, color="C3", marker="o", linestyle="-", label="Median P(C=2 | X)")
-    ax.fill_between(years, hdi_prob[:, 0], hdi_prob[:, 1], color="C3", alpha=0.3, label="94% HDI")
+    ax.plot(years, median_prob, color='#8dc63f', marker='o', linestyle='-', label='Median P(C=2 | X)')
+    ax.fill_between(years, hdi_prob[:, 0], hdi_prob[:, 1], color='#8dc63f', alpha=0.3, label='94% HDI')
     
-    ax.set_xlabel("Year")
-    ax.set_ylabel("Posterior Probability of Component 2")
-    ax.set_title("TCEV Component Separation")
+    ax.set_xlabel('Year')
+    ax.set_ylabel('Posterior Probability of Component 2')
+    ax.set_title('TCEV Component Separation')
     ax.legend()
-    ax.grid(True, linestyle="--", alpha=0.7)
+    ax.grid(True, linestyle='--', alpha=0.7)
     
     return fig
