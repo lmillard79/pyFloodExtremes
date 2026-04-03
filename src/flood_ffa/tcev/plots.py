@@ -32,7 +32,11 @@ def gev_cdf_np(x, mu, sigma, xi):
     else:
         cond = 1 + xi * z
         valid = cond > 0
-        cdf[valid] = np.exp(-(cond[valid] ** (-1/xi)))
+        # Calculate power term safely. exp(-large) is 0, so overflow in power is fine
+        # if it's large positive.
+        p_term = np.zeros_like(cond)
+        p_term[valid] = np.power(cond[valid], -1/xi)
+        cdf[valid] = np.exp(-p_term[valid])
         if xi < 0:
             cdf[~valid & (z > 0)] = 1.0
     return cdf
@@ -79,8 +83,8 @@ def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.n
     median = np.median(rl_samples, axis=0)
     
     # Reshape to (chain, draw, shape) to avoid ArviZ future warnings
-    n_chains = idata.posterior.dims['chain']
-    n_draws = idata.posterior.dims['draw']
+    n_chains = idata.posterior.sizes['chain']
+    n_draws = idata.posterior.sizes['draw']
     rl_reshaped = rl_samples.reshape((n_chains, n_draws, len(aep_grid)))
     hdi = az.hdi(rl_reshaped, hdi_prob=0.94)
     
@@ -145,8 +149,8 @@ def plot_component_separation(idata: az.InferenceData, flows: pd.Series) -> matp
     median_prob = np.median(p2_prob, axis=0)
     
     # Reshape to (chain, draw, shape) to avoid ArviZ future warnings
-    n_chains = idata.posterior.dims['chain']
-    n_draws = idata.posterior.dims['draw']
+    n_chains = idata.posterior.sizes['chain']
+    n_draws = idata.posterior.sizes['draw']
     p2_reshaped = p2_prob.reshape((n_chains, n_draws, n_obs))
     hdi_prob = az.hdi(p2_reshaped, hdi_prob=0.94)
     

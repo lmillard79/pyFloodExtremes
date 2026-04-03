@@ -43,7 +43,7 @@ def plot_comparison(
     gev_median = np.median(rl_gev, axis=0)
     
     # Reshape for HDI
-    rl_gev_reshaped = rl_gev.reshape((post_gev.dims['chain'], post_gev.dims['draw'], len(aep_grid)))
+    rl_gev_reshaped = rl_gev.reshape((post_gev.sizes['chain'], post_gev.sizes['draw'], len(aep_grid)))
     gev_hdi = az.hdi(rl_gev_reshaped, hdi_prob=0.94)
     
     ax.plot(aep_grid, gev_median, color=DIST_COLORS['gev'], label="GEV Median")
@@ -59,7 +59,7 @@ def plot_comparison(
     lp3_median = np.median(rl_lp3, axis=0)
     
     # Reshape for HDI
-    rl_lp3_reshaped = rl_lp3.reshape((post_lp3.dims['chain'], post_lp3.dims['draw'], len(aep_grid)))
+    rl_lp3_reshaped = rl_lp3.reshape((post_lp3.sizes['chain'], post_lp3.sizes['draw'], len(aep_grid)))
     lp3_hdi = az.hdi(rl_lp3_reshaped, hdi_prob=0.94)
     
     ax.plot(aep_grid, lp3_median, color=DIST_COLORS['lp3'], label="LP3 Median")
@@ -84,7 +84,7 @@ def plot_comparison(
     tcev_median = np.median(rl_tcev, axis=0)
     
     # Reshape for HDI
-    rl_tcev_reshaped = rl_tcev.reshape((post_tcev.dims['chain'], post_tcev.dims['draw'], len(aep_grid)))
+    rl_tcev_reshaped = rl_tcev.reshape((post_tcev.sizes['chain'], post_tcev.sizes['draw'], len(aep_grid)))
     tcev_hdi = az.hdi(rl_tcev_reshaped, hdi_prob=0.94)
     
     ax.plot(aep_grid, tcev_median, color=DIST_COLORS['tcev'], label="TCEV Median")

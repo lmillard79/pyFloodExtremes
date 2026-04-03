@@ -53,8 +53,8 @@ def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.n
     median = np.median(rl_samples, axis=0)
     
     # Reshape to (chain, draw, shape) to avoid ArviZ future warnings
-    n_chains = idata.posterior.dims['chain']
-    n_draws = idata.posterior.dims['draw']
+    n_chains = idata.posterior.sizes['chain']
+    n_draws = idata.posterior.sizes['draw']
     rl_reshaped = rl_samples.reshape((n_chains, n_draws, len(aep_grid)))
     hdi = az.hdi(rl_reshaped, hdi_prob=0.94)
     
