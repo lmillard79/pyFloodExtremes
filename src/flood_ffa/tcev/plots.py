@@ -84,10 +84,11 @@ def plot_return_levels(idata: az.InferenceData, flows: pd.Series, aep_grid: np.n
     # TCEV Plotting
     ax.plot(aep_grid, median, color='#8dc63f', lw=1.5, label='TCEV posterior median')
     ax.fill_between(aep_grid, hdi[:, 0], hdi[:, 1], alpha=0.25, color='#8dc63f', label='TCEV 94% HDI')
-    
+
     # Observed data
     aep_obs = cunnane_plotting_positions(flows.values)
     ax.scatter(aep_obs, flows.values, color='#485253', zorder=5, s=30, label='Observed AMS')
+
     
     # Formatting
     ax.set_xscale('prob')

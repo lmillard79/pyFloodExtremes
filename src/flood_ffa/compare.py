@@ -25,8 +25,8 @@ def plot_comparison(
         
     fig, ax = plt.subplots(figsize=(12, 8))
     
-    # Colors from skill document
-    DIST_COLOURS = {
+    # Colours from skill document
+    DIST_COLORS = {
         'gev':  '#1e4164',  # Blue
         'lp3':  '#00928f',  # Teal
         'tcev': '#8dc63f',  # Green
@@ -43,8 +43,8 @@ def plot_comparison(
     gev_median = np.median(rl_gev, axis=0)
     gev_hdi = az.hdi(rl_gev, hdi_prob=0.94)
     
-    ax.plot(aep_grid, gev_median, color=DIST_COLOURS['gev'], label="GEV Median")
-    ax.fill_between(aep_grid, gev_hdi[:, 0], gev_hdi[:, 1], color=DIST_COLOURS['gev'], alpha=0.1)
+    ax.plot(aep_grid, gev_median, color=DIST_COLORS['gev'], label="GEV Median")
+    ax.fill_between(aep_grid, gev_hdi[:, 0], gev_hdi[:, 1], color=DIST_COLORS['gev'], alpha=0.1)
     
     # 2. LP3
     post_lp3 = lp3_idata.posterior
@@ -56,8 +56,8 @@ def plot_comparison(
     lp3_median = np.median(rl_lp3, axis=0)
     lp3_hdi = az.hdi(rl_lp3, hdi_prob=0.94)
     
-    ax.plot(aep_grid, lp3_median, color=DIST_COLOURS['lp3'], label="LP3 Median")
-    ax.fill_between(aep_grid, lp3_hdi[:, 0], lp3_hdi[:, 1], color=DIST_COLOURS['lp3'], alpha=0.1)
+    ax.plot(aep_grid, lp3_median, color=DIST_COLORS['lp3'], label="LP3 Median")
+    ax.fill_between(aep_grid, lp3_hdi[:, 0], lp3_hdi[:, 1], color=DIST_COLORS['lp3'], alpha=0.1)
     
     # 3. TCEV
     post_tcev = tcev_idata.posterior
@@ -78,12 +78,12 @@ def plot_comparison(
     tcev_median = np.median(rl_tcev, axis=0)
     tcev_hdi = az.hdi(rl_tcev, hdi_prob=0.94)
     
-    ax.plot(aep_grid, tcev_median, color=DIST_COLOURS['tcev'], label="TCEV Median")
-    ax.fill_between(aep_grid, tcev_hdi[:, 0], tcev_hdi[:, 1], color=DIST_COLOURS['tcev'], alpha=0.1)
+    ax.plot(aep_grid, tcev_median, color=DIST_COLORS['tcev'], label="TCEV Median")
+    ax.fill_between(aep_grid, tcev_hdi[:, 0], tcev_hdi[:, 1], color=DIST_COLORS['tcev'], alpha=0.1)
     
     # 4. Observed
     aep_obs = cunnane_plotting_positions(flows.values)
-    ax.scatter(aep_obs, flows.values, color=DIST_COLOURS['obs'], marker='o', s=30, label="Observed AMS", zorder=10)
+    ax.scatter(aep_obs, flows.values, color=DIST_COLORS['obs'], marker='o', s=30, label="Observed AMS", zorder=10)
     
     # Formatting
     ax.set_xscale('prob')

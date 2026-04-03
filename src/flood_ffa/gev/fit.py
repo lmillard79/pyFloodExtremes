@@ -5,7 +5,7 @@ import arviz as az
 
 def gev_logp(value, mu, sigma, xi):
     """
-    Log-probability function for the Generalized Extreme Value (GEV) distribution,
+    Log-probability function for the Generalised Extreme Value (GEV) distribution,
     implemented using PyMC's math (PyTensor) functions for NUTS compatibility.
     """
     z = (value - mu) / sigma
