@@ -6,21 +6,29 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-    { name = "Lindsay Millard" }
+	{ name = "Lindsay Millard", email = "your@email.com" }
 ]
+[project.urls]
+Homepage = "https://github.com/lmillard79/pyFloodExtremes"
+Repository = "https://github.com/lmillard79/pyFloodExtremes"
+Documentation = "https://github.com/lmillard79/pyFloodExtremes/tree/main/docs/theory"
+
 keywords = ["hydrology", "flood", "extreme value", "GEV", "LP3", "Bayesian"]
-dependencies = [
-    "pyextremes",
+dependencies = [    
     "pymc",
-    "arviz",
-    "jupyter",
+    "arviz",    
     "matplotlib",
     "numpy",
     "pandas",
     "scipy",
     "probscale",
 ]
-
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Topic :: Scientific/Engineering :: Hydrology",
+  "Intended Audience :: Science/Research",
+]
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -32,4 +40,6 @@ packages = ["src/flood_ffa"]
 dev = [
     "pytest",
     "pytest-cov",
+	"jupyter",
+    "pyextremes",  # move here if only used in notebooks
 ]
