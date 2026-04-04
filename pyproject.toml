@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 authors = [
-	{ name = "Lindsay Millard", email = "your@email.com" }
+	{ name = "Lindsay Millard", email = "lindsay.millard79@gmail.com" }
 ]
 [project.urls]
 Homepage = "https://github.com/lmillard79/pyFloodExtremes"
@@ -41,6 +41,7 @@ packages = ["src/flood_ffa"]
 dev = [
     "pytest",
     "pytest-cov",
-	"jupyter",
-    "pyextremes",  # move here if only used in notebooks
+    "jupyter",
+    "pyextremes",
+    "pyarrow>=12.0.0",  # for parquet support in benchmark tests
 ]
