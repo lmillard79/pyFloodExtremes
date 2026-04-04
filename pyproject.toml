@@ -1,7 +1,7 @@
 [project]
 name = "pyfloodextremes"
-version = "0.1.0"
-description = "Bayesian flood frequency analysis (GEV and LP3) built on pyextremes"
+version = "0.1.0.dev1" 
+description = "EDUCATIONAL DEMO ONLY: Not for production use. Bayesian flood frequency analysis (GEV and LP3) built on pyextremes"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
@@ -28,6 +28,7 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Topic :: Scientific/Engineering :: Hydrology",
   "Intended Audience :: Science/Research",
+  "Development Status :: 1 - Planning",
 ]
 [build-system]
 requires = ["hatchling"]

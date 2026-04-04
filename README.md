@@ -7,6 +7,11 @@
 It is designed as both a **practical analysis tool** and a **learning resource** for engineers and hydrologists working with Australian flood data.
 
 ---
+# ⚠️ Educational Demo Package
+
+**This package is for learning purposes only.** 
+It is not intended for production or professional practice use. It may contain bugs, other issues, 
+and breaking changes without notice.
 
 ## What does it do?
 
