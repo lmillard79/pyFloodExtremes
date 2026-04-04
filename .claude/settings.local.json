@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py:*)",
+      "WebFetch(domain:docs.google.com)"
+    ]
+  }
+}
