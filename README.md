@@ -222,16 +222,25 @@ All managed automatically by `uv sync`.
 
 ## Acknowledgements
 
-The scientific foundations of this package belong to others entirely.
-TCEV was developed by Rossi, Fiorentino and Versace (1984, Water Resources Research, 20(7), 847–856). Their insight that flood records may arise from two physically distinct populations is the idea this repository is most trying to understand.
+The scientific foundations of this package belong to others entirely. Credit sits with the researchers below, not with this repository.
+TCEV — Two-Component Extreme Value distribution
+Developed by Rossi, F., Fiorentino, M. and Versace, P. (1984). Two-component extreme value distribution for flood frequency analysis. Water Resources Research, 20(7), 847–856. Their insight that annual flood records may arise from two physically distinct populations is the idea this repository is most trying to understand.
 
-FLIKE and the Bayesian framework were developed by Kuczera (1999, Water Resources Research, 35(4), 1551–1557). The LH-moments approach follows Wang (1997). TUFLOW FLIKE is the production implementation of these ideas and the reference against which the emulator in this repository is compared.
+FLIKE and the Bayesian framework
+Developed by Kuczera, G. (1999). Comprehensive at-site flood frequency analysis using Monte Carlo Bayesian inference. Water Resources Research, 35(5), 1551–1558. TUFLOW FLIKE is the production implementation of these ideas and the reference against which the emulator in Notebook 06 is compared.
 
-RMC Best Fit (US Army Corps of Engineers, Risk Management Center) is where this repository started. An attempt to reconcile FLIKE and RMC Best Fit v1 results led to a paper at HWRS and eventually to the question: what is the math actually doing? This repository is the long answer to that question. RMC Best Fit v2 is a significant and excellent tool and the discrepancies that motivated this work were resolved in that release.
-Multiple Grubbs-Beck Test is ported from the reference implementation at MGBT_1.0.7.
+LH-moments
+Wang, Q.J. (1997). LH moments for statistical analysis of extreme events. Water Resources Research, 33(12), 2841–2848.
 
-The Python implementation is built on PyMC and ArviZ. Australian plotting conventions follow ARR 2019.
-This repository is a learning workbench. The credit for the underlying science sits entirely with the researchers above.
+RMC Best Fit
+The RMC Best Fit software (US Army Corps of Engineers, Risk Management Center; Smith, H., 2020, RMC-TR-2020-02) is where this repository started. An attempt to reconcile FLIKE and RMC Best Fit v1 results for 65 test datasets led to a conference paper (Millard, L., 2023, Probably some practical advice when using Flood Frequency Analysis utilities, HWRS 2023, Sydney, ISBN 978-1-925627-81-7) and eventually to the question: what is the maths actually doing? This repository is the long answer. RMC Best Fit v2 is an excellent tool and the discrepancies that motivated this work were resolved in that release.
+
+Multiple Grubbs-Beck Test
+Cohn, T.A., England, J.F., Berenbrock, C.E., Mason, R.R., Stedinger, J.R. and Lamontagne, J.R. (2013). A generalized Grubbs-Beck test statistic for detecting multiple potentially influential low outliers in flood series. Water Resources Research. MGBT ported from the reference R implementation at MGBT_1.0.7 (Asquith, W., 2022).
+
+Python libraries
+Built on PyMC and ArviZ. Australian plotting conventions follow ARR 2019 (Ball et al., 2019).
+This repository is a learning workbench. Use it to explore ideas, not to inform design decisions.
 
 ---
 
