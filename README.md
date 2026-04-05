@@ -4,7 +4,7 @@
 
 `pyFloodExtremes` fits extreme value distributions to annual maximum streamflow records, produces flood frequency curves with uncertainty bands, and compares results across multiple modelling approaches — all following Australian Rainfall and Runoff (ARR 2019) conventions.
 
-It is designed as both a **practical analysis tool** and a **learning resource** for engineers and hydrologists working with Australian flood data.
+It is designed as both a **practical analysis tool** and a **learning resource** for engineers and hydrologists working with Australian flood data. The ideas explored here belong to the scientists and statisticians who developed them. This repository exists to make those ideas easier to pull apart and understand.
 
 ---
 # ⚠️ Educational Demo Package
@@ -222,7 +222,16 @@ All managed automatically by `uv sync`.
 
 ## Acknowledgements
 
-Built on [PyMC](https://www.pymc.io) and [ArviZ](https://python.arviz.org). LH-moments implementation follows Wang (1997) and Kuczera (1999). MGBT ported from the reference implementation at [MGBT_1.0.7](https://github.com/wasquith-usgs/mgbt). Australian plotting conventions follow ARR 2019.
+The scientific foundations of this package belong to others entirely.
+TCEV was developed by Rossi, Fiorentino and Versace (1984, Water Resources Research, 20(7), 847–856). Their insight that flood records may arise from two physically distinct populations is the idea this repository is most trying to understand.
+
+FLIKE and the Bayesian framework were developed by Kuczera (1999, Water Resources Research, 35(4), 1551–1557). The LH-moments approach follows Wang (1997). TUFLOW FLIKE is the production implementation of these ideas and the reference against which the emulator in this repository is compared.
+
+RMC Best Fit (US Army Corps of Engineers, Risk Management Center) is where this repository started. An attempt to reconcile FLIKE and RMC Best Fit v1 results led to a paper at HWRS and eventually to the question: what is the math actually doing? This repository is the long answer to that question. RMC Best Fit v2 is a significant and excellent tool and the discrepancies that motivated this work were resolved in that release.
+Multiple Grubbs-Beck Test is ported from the reference implementation at MGBT_1.0.7.
+
+The Python implementation is built on PyMC and ArviZ. Australian plotting conventions follow ARR 2019.
+This repository is a learning workbench. The credit for the underlying science sits entirely with the researchers above.
 
 ---
 
