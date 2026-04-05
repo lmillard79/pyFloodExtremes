@@ -1,6 +1,6 @@
 [project]
 name = "pyfloodextremes"
-version = "0.1.0.dev1" 
+version = "0.1.0.dev1"
 description = "EDUCATIONAL DEMO ONLY: Not for production use. Bayesian flood frequency analysis (GEV and LP3) built on pyextremes"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -8,15 +8,10 @@ license = { text = "MIT" }
 authors = [
 	{ name = "Lindsay Millard", email = "lindsay.millard79@gmail.com" }
 ]
-[project.urls]
-Homepage = "https://github.com/lmillard79/pyFloodExtremes"
-Repository = "https://github.com/lmillard79/pyFloodExtremes"
-Documentation = "https://github.com/lmillard79/pyFloodExtremes/tree/main/docs/theory"
-
 keywords = ["hydrology", "flood", "extreme value", "GEV", "LP3", "Bayesian"]
-dependencies = [    
+dependencies = [
     "pymc",
-    "arviz",    
+    "arviz",
     "matplotlib",
     "numpy",
     "pandas",
@@ -30,6 +25,12 @@ classifiers = [
   "Intended Audience :: Science/Research",
   "Development Status :: 1 - Planning",
 ]
+
+[project.urls]
+Homepage = "https://github.com/lmillard79/pyFloodExtremes"
+Repository = "https://github.com/lmillard79/pyFloodExtremes"
+Documentation = "https://github.com/lmillard79/pyFloodExtremes/tree/main/docs/theory"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -43,5 +44,5 @@ dev = [
     "pytest-cov",
     "jupyter",
     "pyextremes",
-    "pyarrow>=12.0.0",  # for parquet support in benchmark tests
+    "pyarrow>=12.0.0",
 ]
